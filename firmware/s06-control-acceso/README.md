@@ -2,6 +2,8 @@
 
 > **Semana 6** del [roadmap](../../roadmap_v2_kit.md) · Estado: ⬜ sin empezar
 > **Framework:** 🔵 Arduino (C++)
+>
+> 📑 [Índice de este proyecto](index.md)
 
 `MFRC522` es la librería de referencia y no tiene equivalente sólido en MicroPython.
 

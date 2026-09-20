@@ -2,6 +2,8 @@
 
 > **Semana 9** del [roadmap](../../roadmap_v2_kit.md) · Estado: ⬜ sin empezar
 > **Framework:** 🔵 Arduino (C++) · 🐍 MicroPython — **los dos**
+>
+> 📑 [Índice de este proyecto](index.md)
 
 Punto de comparación #3, y el más interesante: **medí con el multímetro cuánto consume cada uno.** MicroPython tarda más en arrancar, y eso se traduce en menos meses de autonomía. Es un número concreto, no una opinión.
 

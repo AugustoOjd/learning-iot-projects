@@ -1,0 +1,62 @@
+{
+  "folders": [
+    {
+      "name": "📋 Laboratorio (docs e índices)",
+      "path": "."
+    },
+    {
+      "name": "s01 · Panel de alarma",
+      "path": "firmware/s01-panel-alarma/arduino"
+    },
+    {
+      "name": "s03 · Telemetría a la nube",
+      "path": "firmware/s03-telemetria-nube/arduino"
+    },
+    {
+      "name": "s04 · Datalogger de frío",
+      "path": "firmware/s04-datalogger-frio/arduino"
+    },
+    {
+      "name": "s05 · Control de tanque",
+      "path": "firmware/s05-control-tanque/arduino"
+    },
+    {
+      "name": "s06 · Control de acceso",
+      "path": "firmware/s06-control-acceso/arduino"
+    },
+    {
+      "name": "s07 · Panel indicador",
+      "path": "firmware/s07-panel-indicador/arduino"
+    },
+    {
+      "name": "s09 · Nodo a batería",
+      "path": "firmware/s09-nodo-bateria/arduino"
+    },
+    {
+      "name": "s11 · Nodo sensor",
+      "path": "firmware/s11-red-multinodo/nodo-sensor/arduino"
+    },
+    {
+      "name": "s11 · Gateway",
+      "path": "firmware/s11-red-multinodo/gateway/arduino"
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/.pio": true
+    },
+    "files.associations": {
+      "*.ino": "cpp"
+    },
+    "python.analysis.extraPaths": [
+      "shared/config"
+    ]
+  },
+  "extensions": {
+    "recommendations": [
+      "platformio.platformio-ide",
+      "ms-vscode.cpptools",
+      "ms-python.python"
+    ]
+  }
+}

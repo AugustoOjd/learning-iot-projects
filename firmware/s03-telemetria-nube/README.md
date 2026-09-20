@@ -2,6 +2,8 @@
 
 > **Semana 3** del [roadmap](../../roadmap_v2_kit.md) · Estado: ⬜ sin empezar
 > **Framework:** 🔵 Arduino (C++) · 🐍 MicroPython — **los dos**
+>
+> 📑 [Índice de este proyecto](index.md)
 
 Punto de comparación #2: el stack de red. `PubSubClient` vs `umqtt.simple`, manejo de JSON y de reconexión en cada uno.
 

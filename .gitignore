@@ -1,0 +1,35 @@
+# Secretos — nunca commitear
+shared/config/secrets.h
+shared/config/secrets.py
+infra/.env
+infra/mosquitto/config/passwd
+*.local.*
+
+# PlatformIO
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# MicroPython / Python
+__pycache__/
+*.pyc
+*.mpy
+.venv/
+venv/
+
+# Infra con estado
+infra/mosquitto/data/
+infra/mosquitto/log/
+infra/node-red-data/
+infra/influxdb-data/
+infra/grafana-data/
+infra/esphome/secrets.yaml
+
+# Editores
+.vscode/
+!.vscode/extensions.json
+.idea/
+
+# Sistema
+.DS_Store
+Thumbs.db

@@ -1,0 +1,41 @@
+El kit Incluye:
+1 x NodeMcu ESP-32S de 38 Pines
+1 x Cable USB-A a USB-C
+65 x Jumpers Protoboard
+1 x Protoboard de 830 puntos
+15 x LEDs (Rojo, Verde, Amarillo)
+30 x Resistencias (220, 10K, 1K)
+10 x Dupont Macho-Hembra
+1 x Potenciometro 10K
+1 x Buzzer Activo
+1 x Buzzer Pasivo
+1 x 74HC595N
+1 x Receptor Infrarrojo
+1 x LM35DZ
+1 x Sensor Llama
+5 x Switches boton c/Tope
+1 x Control Remoto Infrarrojo
+1 x Display 1 digito
+1 x Display 4 digitos
+1 x Display Matrix 8x8
+1 x Motor paso a paso de 5V
+1 x Display LCD 1602
+1 x Joystick PS2
+1 x Sensor Digital de Temperatura y Humedad DHT11
+1 x Sensor de nivel de Agua
+1 x Modulo RFID
+1 x Llavero RFID
+1 x Tarjeta RFID
+1 x Modulo sensor de Sonidos
+1 x Modulo Relay de 1 canal
+1 x Teclado matriz de 16 botones
+1 x Modulo RGB de 3 colores
+1 x Connector para batteria de 9V
+1 x Servo Motor SG90
+1 x Modulo RTC
+1 x Modulo Driver UNL2003
+1 x Sensor de inclinacion
+3 x Foto Resistencias
+
+Contenido de la Compra:
+- 1x Kit de Electronica HEMMEL TEK-002 Basado en NodeMcu ESP-32S de 38 Pines

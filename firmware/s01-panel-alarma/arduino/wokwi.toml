@@ -1,0 +1,4 @@
+[wokwi]
+version = 1
+firmware = '.pio/build/s01-panel-alarma/firmware.bin'
+elf = '.pio/build/s01-panel-alarma/firmware.elf'

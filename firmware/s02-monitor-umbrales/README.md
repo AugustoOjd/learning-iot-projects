@@ -2,6 +2,8 @@
 
 > **Semana 2** del [roadmap](../../roadmap_v2_kit.md) · Estado: ⬜ sin empezar
 > **Framework:** 🐍 MicroPython
+>
+> 📑 [Índice de este proyecto](index.md)
 
 El REPL es ideal acá: calibrás umbrales en vivo, moviendo el potenciómetro y leyendo valores, sin recompilar.
 

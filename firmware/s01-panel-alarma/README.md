@@ -1,9 +1,14 @@
 # Panel de alarma
 
-> **Semana 1** del [roadmap](../../roadmap_v2_kit.md) · Estado: ⬜ sin empezar
+> **Semana 1** del [roadmap](../../roadmap_v2_kit.md) · Estado: 🟡 en curso
 > **Framework:** 🔵 Arduino (C++) · 🐍 MicroPython — **los dos**
+>
+> 📑 [Índice de este proyecto](index.md)
 
 Punto de comparación #1: la misma lógica en los dos lenguajes. Es donde ves la diferencia de sintaxis y de ciclo de desarrollo sin que el hardware complique nada.
+
+> 🔧 **Para armarlo: [`INSTRUCCIONES_FISICAS.md`](INSTRUCCIONES_FISICAS.md)** — qué es cada
+> componente, cómo se ve, cómo se conecta y en qué orden. Tres montajes incrementales.
 
 ## Caso real
 
@@ -31,6 +36,7 @@ Máquina de estados sin bloqueo
 | | | |
 
 Pines en [`pinout.h`](../../shared/config/pinout.h) / [`pinout.py`](../../shared/config/pinout.py).
+Montaje paso a paso en [`INSTRUCCIONES_FISICAS.md`](INSTRUCCIONES_FISICAS.md).
 
 📷 Foto del cableado y video de 20s en [`media/`](media/) — **sacalos antes de desarmar.**
 

@@ -2,6 +2,8 @@
 
 > **Semana 5** del [roadmap](../../roadmap_v2_kit.md) · Estado: ⬜ sin empezar
 > **Framework:** 🔵 Arduino (C++)
+>
+> 📑 [Índice de este proyecto](index.md)
 
 El timing del servo y del stepper necesita precisión que el intérprete de MicroPython no garantiza.
 

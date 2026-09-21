@@ -2,6 +2,8 @@
 
 > **Semana 11** del [roadmap](../../roadmap_v2_kit.md) · Estado: ⬜ sin empezar
 > **Framework:** 🔵 Arduino (C++)
+>
+> 📑 [Índice de este proyecto](index.md)
 
 Dos binarios distintos: [`nodo-sensor/`](nodo-sensor/) duerme y transmite,
 [`gateway/`](gateway/) está enchufado y traduce ESP-NOW a MQTT.

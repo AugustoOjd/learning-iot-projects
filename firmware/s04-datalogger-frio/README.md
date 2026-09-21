@@ -2,6 +2,8 @@
 
 > **Semana 4** del [roadmap](../../roadmap_v2_kit.md) · Estado: ⬜ sin empezar
 > **Framework:** 🔵 Arduino (C++)
+>
+> 📑 [Índice de este proyecto](index.md)
 
 Las librerías I2C de Arduino (RTClib, LiquidCrystal_I2C) están mucho más maduras que sus equivalentes en MicroPython.
 

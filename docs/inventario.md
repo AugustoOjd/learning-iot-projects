@@ -3,6 +3,66 @@
 Los datos que son únicos de **tu** kit y que el roadmap te hace averiguar en cuatro semanas
 distintas. Tenerlos acá te ahorra horas de volver a probar.
 
+---
+
+## Mi protoboard y el montaje del ESP32
+
+Protoboard de **830 puntos**: columnas **1 a 60**, filas **a** a **j**, con rieles `+`/`−`
+arriba y abajo.
+
+**Orientación tal como la veo:** la fila `j` queda arriba y la `a` abajo.
+
+```
+─────────  riel + / −
+  j   ← acceso a los pines de arriba
+  i   ● pines del ESP32
+  h  ┐
+  g  ├─ tapadas por el módulo
+  f  ┘
+═════════  canal
+  e  ┐
+  d  ├─ tapadas por el módulo
+  c  ┘
+  b   ● pines del ESP32
+  a   ← acceso a los pines de abajo
+─────────  riel + / −
+```
+
+| Dato | Valor |
+|---|---|
+| El ESP32 de 38 pines ocupa | **columnas 1 a 19** |
+| Sus pines caen en las filas | **`b`** e **`i`** |
+| Filas accesibles para cablear a un pin | **`j`** (para los de `i`) y **`a`** (para los de `b`) |
+| Filas tapadas por el módulo | `c` a `h` |
+| Zona libre para armar circuitos | **columnas 20 a 60** |
+
+**Regla para llegar a un pin:** buscá la etiqueta serigrafiada, mirá en qué columna cae, y
+metés el jumper en `j<columna>` si el pin está en la fila `i`, o en `a<columna>` si está en
+la fila `b`.
+
+Recordá que `j-i-h-g-f` de una columna son un punto eléctrico y `e-d-c-b-a` son otro: el
+canal los separa.
+
+### Columnas de los pines que más uso
+
+_(Completar a medida que los ubiques)_
+
+| Pin | Columna | Fila | Se accede por |
+|---|---|---|---|
+| GND | | | |
+| GPIO 13 | | | |
+| GPIO 16 | | | |
+| GPIO 25 | | | |
+| GPIO 26 | | | |
+| GPIO 27 | | | |
+| 3V3 | | | |
+
+> ⚠️ ¿Los rieles `+`/`−` están cortados al medio? Mirá si la línea roja/azul se interrumpe
+> en el centro. Si sí, hay que puentear las dos mitades con un jumper.
+> **Resultado:** _(completar)_
+
+---
+
 ## Verificaciones pendientes (hacelas antes de la semana 4)
 
 Contá los pines. Cambian el código y la lista de compras:

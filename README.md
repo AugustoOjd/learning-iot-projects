@@ -9,6 +9,8 @@ ambos para poder compararlos de verdad.
 
 ## Casos de uso
 
+👉 Índice navegable completo en [`firmware/index.md`](firmware/index.md)
+
 | # | Proyecto | Caso real | Técnica central | Lenguaje | Estado |
 |---|---|---|---|---|---|
 | s01 | [Panel de alarma](firmware/s01-panel-alarma/) | Detector de incendio con sirena | Máquina de estados sin bloqueo | 🔵🐍 | ⬜ |
@@ -41,6 +43,15 @@ código de `shared/`, y la 12 le da gabinete al proyecto que más te haya enganc
 **s04-s07 y s11 en Arduino** por madurez de librerías (RC522, RTClib, LCD I2C) y por timing.
 En **s07 MicroPython directamente no puede**: el multiplexado necesita refrescar 8 filas a
 más de 60 Hz y el intérprete no llega — la matriz parpadea visiblemente.
+
+## Qué hay dentro de cada proyecto
+
+| Archivo | Para qué |
+|---|---|
+| `README.md` | Caso real, técnica, criterio de terminado. La cara de portfolio |
+| `INSTRUCCIONES_FISICAS.md` | Qué es cada componente, cómo se ve, cómo se conecta y en qué orden armarlo |
+| `arduino/` · `micropython/` | El código |
+| `media/` | Foto del cableado y video — **sacalos antes de desarmar** |
 
 ## Mapa de transferencia
 
@@ -85,6 +96,7 @@ Broker MQTT, Node-RED y Grafana en [`infra/`](infra/). Desde s03: `cd infra && d
 
 ## Antes de empezar
 
+- [ ] **[`docs/setup.md`](docs/setup.md)** — instalar PlatformIO y pasar el USB a WSL2
 - [ ] Leer "Antes de enchufar nada" del roadmap (las 6 reglas que evitan quemar componentes)
 - [ ] Completar [`docs/inventario.md`](docs/inventario.md) — variantes de tu kit, 20 minutos
 - [ ] Conseguir un multímetro
@@ -97,5 +109,6 @@ Broker MQTT, Node-RED y Grafana en [`infra/`](infra/). Desde s03: `cd infra && d
 | [`docs/extensiones.md`](docs/extensiones.md) | **Modbus, LoRaWAN y TinyML**: casos, usos y cuándo valen la pena |
 | [`docs/backend.md`](docs/backend.md) | Go/Python: puntos de conexión (fuera de alcance por ahora) |
 | [`docs/decisiones.md`](docs/decisiones.md) | Por qué elegí cada cosa |
+| [`docs/pinout-placa.md`](docs/pinout-placa.md) | **Pinout numerado de tu NodeMCU ESP-32S**: los 38 pines, qué GPIO es cada uno y cuáles no se tocan |
 | [`docs/inventario.md`](docs/inventario.md) | Los datos únicos de tu kit: direcciones I2C, UIDs, variantes |
 | [`hardware/mediciones/`](hardware/mediciones/) | Consumos medidos, presupuesto energético |

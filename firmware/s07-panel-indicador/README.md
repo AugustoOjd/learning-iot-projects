@@ -2,6 +2,8 @@
 
 > **Semana 7** del [roadmap](../../roadmap_v2_kit.md) · Estado: ⬜ sin empezar
 > **Framework:** 🔵 Arduino (C++)
+>
+> 📑 [Índice de este proyecto](index.md)
 
 **Acá MicroPython directamente no puede.** El multiplexado necesita refrescar 8 filas a más de 60Hz; el intérprete no llega y la matriz parpadea visiblemente.
 

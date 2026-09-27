@@ -11,10 +11,14 @@ from machine import Pin
 import pinout
 
 led = Pin(pinout.LED_ROJO, Pin.OUT)
-# PULL_UP: el pin reposa en 1 y cae a 0 al apretar, porque el botón lo lleva a GND.
 boton = Pin(pinout.BOTON_1, Pin.IN, Pin.PULL_UP)
 
+anterior = None
 while True:
     apretado = boton.value() == 0
     led.value(apretado)
+    if apretado != anterior:          # imprime solo al cambiar
+        print("apretado" if apretado else "suelto")
+        anterior = apretado
     time.sleep_ms(50)
+

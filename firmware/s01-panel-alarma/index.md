@@ -32,6 +32,7 @@ Detector de incendio con sirena y luces. Es literalmente lo que hace un panel de
 | Día | Qué pasó |
 |---|---|
 | [2026-09-20](documentation-days/2026-09-20.md) | Entorno desde cero + montaje 1 funcionando. Tres fallas de cableado: ESP32 mal asentado, emparejado de los botones 12×12, rieles `−` independientes |
+| [2026-09-27](documentation-days/2026-09-27.md) | MicroPython flasheado y el mismo circuito en los dos lenguajes. Montajes 2 y 3. El sensor de llama vino suelto y no como módulo: ADC, divisor de tensión e histéresis. Métodos de diagnóstico |
 
 ## Antes de desarmar
 

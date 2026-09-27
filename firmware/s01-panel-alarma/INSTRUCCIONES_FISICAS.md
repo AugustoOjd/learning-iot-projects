@@ -68,10 +68,34 @@ Placa blanca con agujeritos que conecta componentes sin soldar.
 **Lo único que hay que entender:** los 5 agujeros de una columna son **el mismo punto
 eléctrico**. Dos patas en `a5` y `c5` están conectadas. En `a5` y `a6`, no.
 
-⚠️ **Chequeo de 10 segundos:** muchas protoboard de 830 puntos tienen las filas `+`/`−`
-**cortadas al medio**. Mirá si la línea roja y azul se interrumpe en el centro. Si se
-interrumpe, la mitad derecha no recibe nada de la izquierda — puenteá con un jumper.
-Si tu circuito anda de un lado y del otro no, es esto.
+### ⚠️ Los rieles: la falla que más tiempo cuesta
+
+**Hay cuatro rieles independientes, no dos.** El `−` de arriba y el `−` de abajo tienen el
+mismo símbolo y el mismo color de línea, pero **nunca vienen conectados de fábrica**. Son dos
+nodos eléctricos distintos.
+
+```
+┌──────────────────────────────┐
+│ +  ●●●●●●●●●●●●●●●●●●●●●●●  │ ← riel 1
+│ −  ●●●●●●●●●●●●●●●●●●●●●●●  │ ← riel 2
+│         (filas j … a)        │
+│ −  ●●●●●●●●●●●●●●●●●●●●●●●  │ ← riel 3  NO es el mismo que el 2
+│ +  ●●●●●●●●●●●●●●●●●●●●●●●  │ ← riel 4
+└──────────────────────────────┘
+```
+
+Y además **cada riel puede estar cortado al medio a lo largo**: mirá si la línea roja o azul
+se interrumpe en el centro.
+
+**Paso 0 de todo montaje, sin excepción:**
+
+```
+jumper:  riel − de arriba  →  riel − de abajo
+```
+
+Un solo cable. Después usás el riel que te quede más cerca y deja de importar. En este
+proyecto, olvidarlo causó dos fallas distintas: el LED rojo el primer día y los LEDs verde y
+amarillo el segundo, ambas veces con el circuito perfectamente cableado en todo lo demás.
 
 ### Jumpers y cables Dupont
 

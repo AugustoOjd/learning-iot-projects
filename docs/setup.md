@@ -149,9 +149,11 @@ falle te deja con cinco sospechosos en vez de uno.
 ```bash
 ~/.pio-venv/bin/pip install esptool mpremote
 
-# Una sola vez por chip: flashear el intérprete
-esptool.py --chip esp32 erase_flash
-esptool.py --chip esp32 write_flash -z 0x1000 ESP32_GENERIC-*.bin
+# Una sola vez por chip: flashear el intérprete.
+# esptool v5+ usa guiones y ya no lleva el sufijo .py
+esptool --chip esp32 --port /dev/ttyUSB0 erase-flash
+esptool --chip esp32 --port /dev/ttyUSB0 --baud 460800 \
+    write-flash -z 0x1000 ESP32_GENERIC-*.bin
 
 # Por proyecto
 cd ~/robotic_projects/firmware/s01-panel-alarma/micropython

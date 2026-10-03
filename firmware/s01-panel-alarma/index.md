@@ -1,6 +1,6 @@
 # s01 — Panel de alarma
 
-> **Semana 1** · 🔵🐍 · Estado: 🟡 en curso
+> **Semana 1** · 🔵🐍 · Estado: ✅ completado
 
 Detector de incendio con sirena y luces. Es literalmente lo que hace un panel de alarma comercial.
 
@@ -24,7 +24,7 @@ Detector de incendio con sirena y luces. Es literalmente lo que hace un panel de
 | [`INSTRUCCIONES_FISICAS.md`](INSTRUCCIONES_FISICAS.md) | Componentes, cómo se ven, cómo se conectan | ✅ |
 | [`arduino/`](arduino/) | Versión C++. `pio run -t upload` | |
 | [`micropython/`](micropython/) | Versión Python. `mpremote cp main.py : + repl` | |
-| [`documentation-days/`](documentation-days/) | Bitácora diaria: qué hice, qué falló y cómo lo encontré | 🟡 |
+| [`documentation-days/`](documentation-days/) | Bitácora diaria: qué hice, qué falló y cómo lo encontré | ✅ |
 | [`media/`](media/) | Foto del cableado y video de 20s | ⬜ |
 
 ## Bitácora
@@ -49,7 +49,7 @@ documentación es lo único que queda.
 - [ ] Fila nueva en [`docs/patrones.md`](../../docs/patrones.md)
 - [ ] Lo que descubriste de tu kit en [`docs/inventario.md`](../../docs/inventario.md)
 - [ ] Si tomaste alguna decisión no obvia: [`docs/decisiones.md`](../../docs/decisiones.md)
-- [ ] Estado actualizado acá, en [`firmware/index.md`](../index.md) y en el [README raíz](../../README.md)
+- [x] Estado actualizado acá, en [`firmware/index.md`](../index.md) y en el [README raíz](../../README.md)
 
 ## Navegación
 

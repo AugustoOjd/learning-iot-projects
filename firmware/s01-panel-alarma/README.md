@@ -53,14 +53,14 @@ Máquina de estados sin bloqueo
   emparejan las patas *a lo largo* del canal, así que los dos jumpers salen de columnas
   distintas — al revés de lo que aplica a los tácticos de 6×6.
 
-### Montaje 2 — Buzzers ⬜
+### Montaje 2 — Buzzers ✅
 
 | Componente | Pin | Nota |
 |---|---|---|
 | Buzzer activo | GPIO 25 | `digitalWrite` |
 | Buzzer pasivo | GPIO 26 | `tone()` / PWM |
 
-### Montaje 3 — Panel completo ⬜
+### Montaje 3 — Panel completo ✅
 
 | Componente | Pin | Nota |
 |---|---|---|

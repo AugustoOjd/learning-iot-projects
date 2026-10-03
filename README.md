@@ -13,7 +13,7 @@ ambos para poder compararlos de verdad.
 
 | # | Proyecto | Caso real | Técnica central | Lenguaje | Estado |
 |---|---|---|---|---|---|
-| s01 | [Panel de alarma](firmware/s01-panel-alarma/) | Detector de incendio con sirena | Máquina de estados sin bloqueo | 🔵🐍 | ⬜ |
+| s01 | [Panel de alarma](firmware/s01-panel-alarma/) | Detector de incendio con sirena | Máquina de estados sin bloqueo | 🔵🐍 | ✅ |
 | s02 | [Monitor de umbrales](firmware/s02-monitor-umbrales/) | Sala de servidores / heladera de farmacia | ADC, divisor de tensión, histéresis | 🐍 | ⬜ |
 | s03 | [Telemetría a la nube](firmware/s03-telemetria-nube/) | Monitoreo remoto | WiFi + MQTT + LWT | 🔵🐍 | ⬜ |
 | s04 | [Datalogger de frío](firmware/s04-datalogger-frio/) | Cadena de frío con hora real | I2C, NVS, store-and-forward | 🔵 | ⬜ |

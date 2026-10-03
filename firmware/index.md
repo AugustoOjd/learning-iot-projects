@@ -7,7 +7,7 @@ Los nueve casos de uso del laboratorio. La numeración sigue la semana del
 
 | # | Proyecto | Semana | Lenguaje | Técnica central | Estado |
 |---|---|---|---|---|---|
-| **s01** | [Panel de alarma](s01-panel-alarma/index.md) | 1 | 🔵🐍 | Máquina de estados sin bloqueo | 🟡 en curso |
+| **s01** | [Panel de alarma](s01-panel-alarma/index.md) | 1 | 🔵🐍 | Máquina de estados sin bloqueo | ✅ completado |
 | **s02** | [Monitor de umbrales](s02-monitor-umbrales/index.md) | 2 | 🐍 | ADC, divisor de tensión, histéresis | ⬜ |
 | **s03** | [Telemetría a la nube](s03-telemetria-nube/index.md) | 3 | 🔵🐍 | WiFi + MQTT + LWT | ⬜ |
 | **s04** | [Datalogger de frío](s04-datalogger-frio/index.md) | 4 | 🔵 | I2C, NVS, store-and-forward | ⬜ |

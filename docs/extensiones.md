@@ -181,11 +181,11 @@ una librería de Arduino lista para compilar. Gratis para proyectos personales.
 
 ### Proyecto propuesto
 
-**s14 — Detección de falla de bomba por vibración.** Se enchufa directo a s05: ya tenés una
+**s14 — Detección de falla de bomba por vibración.** Se enchufa directo a s07: ya tenés una
 bomba comandada por relay. Pegás el MPU6050 al motor, grabás vibración en estado sano y en
 estado forzado, entrenás un clasificador y publicás el veredicto por MQTT.
 
-Es la versión con ML de la **verificación de actuador** que ya hacés en s05 con el sensor de
+Es la versión con ML de la **verificación de actuador** que ya hacés en s07 con el sensor de
 sonido — y la comparación entre las dos es exactamente el tipo de criterio que se valora:
 *cuándo alcanza un umbral y cuándo hace falta un modelo*.
 

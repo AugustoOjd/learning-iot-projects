@@ -22,9 +22,9 @@
 #define PIN_LM35         36   // s02 — temperatura, alimentar a 5V
 #define PIN_LDR          39   // s02 — divisor con 10K a GND
 #define PIN_POTENCIOMETRO 34  // s02
-#define PIN_NIVEL_AGUA   34   // s05 — reemplaza al potenciómetro
-#define PIN_SONIDO_AO    35   // s05
-#define PIN_JOYSTICK_X   32   // s05
+#define PIN_NIVEL_AGUA   34   // s07 — reemplaza al potenciómetro
+#define PIN_SONIDO_AO    35   // s07
+#define PIN_JOYSTICK_X   32   // s07
 #define PIN_JOYSTICK_Y   33
 
 // ---------- Digitales ----------

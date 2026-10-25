@@ -49,17 +49,27 @@ _(Completar a medida que los ubiques)_
 
 | Pin | Columna | Fila | Se accede por |
 |---|---|---|---|
-| GND | | | |
+USB del lado de la **columna 1**, apuntando hacia afuera. El pin #n del
+[pinout](pinout-placa.md) (contado desde el extremo opuesto al USB) cae en la **columna 20−n**.
+Lado izquierdo del pinout → fila `i`; lado derecho → fila `b`.
+
+| Pin | Columna | Fila | Se accede por |
+|---|---|---|---|
+| GND | 19 | b | `a19` |
+| GND | 6 | i | `j6` — **el GND del lado de arriba**, sin puente entre rieles |
 | GPIO 13 | | | |
 | GPIO 16 | | | |
 | GPIO 25 | | | |
 | GPIO 26 | | | |
 | GPIO 27 | | | |
-| 3V3 | | | |
+| 3V3 | 19 | i | `j19` |
+| GPIO 34 | 15 | i | `j15` |
 
 > ⚠️ ¿Los rieles `+`/`−` están cortados al medio? Mirá si la línea roja/azul se interrumpe
 > en el centro. Si sí, hay que puentear las dos mitades con un jumper.
-> **Resultado:** _(completar)_
+> **Resultado:** continuos de punta a punta, no hace falta puentear las mitades. Los rieles
+> de arriba y de abajo sí son independientes entre sí: el `−` de abajo se une al de arriba con
+> un jumper (verificado en s01 y s02).
 
 ---
 
@@ -95,7 +105,7 @@ Contá los pines. Cambian el código y la lista de compras:
 | Dirección I2C del LCD | `0x__` | s04 |
 | Dirección I2C del RTC | `0x__` | s04 |
 | Chip del RTC | | s04 |
-| Relay activo en | `HIGH` / `LOW` | s05 |
+| Relay activo en | `HIGH` / `LOW` | s07 |
 | UID llavero RFID | | s06 |
 | UID tarjeta RFID | | s06 |
 | MAC del ESP32 #1 | | s11 |
@@ -104,7 +114,7 @@ Contá los pines. Cambian el código y la lista de compras:
 
 ## Códigos del control remoto IR
 
-Corré el sketch de s05 e imprimí `IrReceiver.decodedIRData.command` para cada tecla.
+Corré el sketch de s07 e imprimí `IrReceiver.decodedIRData.command` para cada tecla.
 
 | Tecla | Código |
 |---|---|
@@ -116,18 +126,18 @@ Corré el sketch de s05 e imprimí `IrReceiver.decodedIRData.command` para cada 
 
 | Sensor | Valor medido | Condición |
 |---|---|---|
-| Nivel de agua — vacío | | s05 |
-| Nivel de agua — lleno | | s05 |
-| LM35 vs termómetro real | | s02 |
+| Nivel de agua — vacío | | s07 |
+| Nivel de agua — lleno | | s07 |
+| LM35 vs termómetro real | pendiente: sin termómetro. LM35 en reposo 25.5°C ±0.09 (0dB, x16) | s02 |
 
 ## Compras pendientes
 
 | Ítem | Para | Precio | Estado |
 |---|---|---|---|
-| Multímetro | Todo, desde el día 1 | ~$5 | ⬜ |
-| Fuente 5V 2A | s05 (servo, stepper) | ~$8 | ⬜ |
+| Multímetro **con sonda de temperatura** (modo `TEMP`) | Todo, desde el día 1. La sonda es la referencia para validar el LM35 en s02 | ~$8 | ⬜ |
+| Fuente 5V 2A | s07 (servo, stepper) | ~$8 | ⬜ |
 | Segundo ESP32 | s11 (ESP-NOW) | ~$10 | ⬜ |
 | Backpack I2C | s04, solo si el LCD tiene 16 pines | ~$2 | ⬜ |
-| Segundo 74HC595 | s07, solo si la matriz es cruda | ~$1 | ⬜ |
+| Segundo 74HC595 | s05, solo si la matriz es cruda | ~$1 | ⬜ |
 | 18650 + TP4056 | s09 (la pila de 9V no sirve para autonomía) | ~$5 | ⬜ |
 | Perfboard, estaño, capacitores 470µF | s12 | ~$6 | ⬜ |

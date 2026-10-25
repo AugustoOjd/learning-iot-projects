@@ -14,12 +14,12 @@ ambos para poder compararlos de verdad.
 | # | Proyecto | Caso real | Técnica central | Lenguaje | Estado |
 |---|---|---|---|---|---|
 | s01 | [Panel de alarma](firmware/s01-panel-alarma/) | Detector de incendio con sirena | Máquina de estados sin bloqueo | 🔵🐍 | ✅ |
-| s02 | [Monitor de umbrales](firmware/s02-monitor-umbrales/) | Sala de servidores / heladera de farmacia | ADC, divisor de tensión, histéresis | 🐍 | ⬜ |
+| s02 | [Monitor de umbrales](firmware/s02-monitor-umbrales/) | Sala de servidores / heladera de farmacia | ADC, divisor de tensión, histéresis | 🐍 | 🟡 |
 | s03 | [Telemetría a la nube](firmware/s03-telemetria-nube/) | Monitoreo remoto | WiFi + MQTT + LWT | 🔵🐍 | ⬜ |
 | s04 | [Datalogger de frío](firmware/s04-datalogger-frio/) | Cadena de frío con hora real | I2C, NVS, store-and-forward | 🔵 | ⬜ |
-| s05 | [Control de tanque](firmware/s05-control-tanque/) | Bomba de agua + persiana | Actuadores con fallas seguras | 🔵 | ⬜ |
+| s05 | [Panel indicador](firmware/s05-panel-indicador/) | Tablero industrial | Expansión de I/O, multiplexado | 🔵 | ⬜ |
 | s06 | [Control de acceso](firmware/s06-control-acceso/) | Fichaje RFID de oficina | SPI, lógica crítica local | 🔵 | ⬜ |
-| s07 | [Panel indicador](firmware/s07-panel-indicador/) | Tablero industrial | Expansión de I/O, multiplexado | 🔵 | ⬜ |
+| s07 | [Control de tanque](firmware/s07-control-tanque/) | Bomba de agua + persiana | Actuadores con fallas seguras | 🔵 | ⬜ |
 | s09 | [Nodo a batería](firmware/s09-nodo-bateria/) | Sensor sin enchufe cerca | Deep sleep, presupuesto energético | 🔵🐍 | ⬜ |
 | s11 | [Red multi-nodo](firmware/s11-red-multinodo/) | Sensores dispersos en campo | ESP-NOW, topología gateway | 🔵 | ⬜ |
 
@@ -41,7 +41,7 @@ código de `shared/`, y la 12 le da gabinete al proyecto que más te haya enganc
 **s02 en MicroPython** porque el REPL es ideal para calibrar umbrales en vivo sin recompilar.
 
 **s04-s07 y s11 en Arduino** por madurez de librerías (RC522, RTClib, LCD I2C) y por timing.
-En **s07 MicroPython directamente no puede**: el multiplexado necesita refrescar 8 filas a
+En **s05 MicroPython directamente no puede**: el multiplexado necesita refrescar 8 filas a
 más de 60 Hz y el intérprete no llega — la matriz parpadea visiblemente.
 
 ## Qué hay dentro de cada proyecto
@@ -58,6 +58,32 @@ más de 60 Hz y el intérprete no llega — la matriz parpadea visiblemente.
 👉 **[`docs/patrones.md`](docs/patrones.md)** — el índice inverso: qué técnica aprendiste y
 en qué otros dominios se aplica. Es lo que hace que esto sea aprendizaje transferible y no
 nueve demos.
+
+## Conectar la placa (WSL2)
+
+Cada vez que enchufás el ESP32 o reiniciás la PC, WSL no lo ve hasta que lo conectás con
+`usbipd`. Todo se corre desde la terminal de WSL (setup inicial en [`docs/setup.md`](docs/setup.md)).
+
+```bash
+# 1. Buscar la placa: CP2102, VID:PID 10c4:ea60. Anotá su BUSID (ej. 1-2)
+usbipd.exe list
+
+# 2. Conectarla a WSL. Queda vigilando y reconecta sola: dejá esta terminal abierta
+usbipd.exe attach --wsl --busid 1-2 --auto-attach
+
+# 3. En otra terminal: verificar que llegó
+ls /dev/ttyUSB*         # → /dev/ttyUSB0
+mpremote ls             # archivos que hay en el chip (MicroPython)
+```
+
+| Lo que ves | Qué significa |
+|---|---|
+| `STATE: Shared` | Disponible pero **no conectado** a WSL → falta el paso 2 |
+| `STATE: Attached` | Conectado a WSL ✅ |
+| `STATE: Not shared` | Ese puerto nunca se habilitó → `usbipd bind --busid <BUSID>` en PowerShell **como administrador** (una vez por puerto) |
+| `mpremote: no device found` | No hay `/dev/ttyUSB0`: volvé al paso 2 |
+
+> El BUSID es del **puerto USB físico**, no de la placa: si la enchufás en otro puerto, cambia.
 
 ## Cómo compilar
 

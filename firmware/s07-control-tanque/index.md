@@ -1,6 +1,6 @@
-# s05 — Control de tanque
+# s07 — Control de tanque
 
-> **Semana 5** · 🔵 · Estado: ⬜ sin empezar
+> **Semana 7** · 🔵 · Estado: ⬜ sin empezar
 
 Bomba de agua automática y persiana motorizada.
 
@@ -46,5 +46,5 @@ documentación es lo único que queda.
 
 [⬅ Índice de proyectos](../index.md) ·
 [Pinout](../../shared/config/pinout.h) ·
-[Roadmap, semana 5](../../roadmap_v2_kit.md) ·
+[Roadmap, semana 7](../../roadmap_v2_kit.md) ·
 [Mapa de transferencia](../../docs/patrones.md)

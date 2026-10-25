@@ -1,6 +1,6 @@
-# s07 — Panel indicador
+# s05 — Panel indicador
 
-> **Semana 7** · 🔵 · Estado: ⬜ sin empezar
+> **Semana 5** · 🔵 · Estado: ⬜ sin empezar
 
 Tablero de estado industrial. La respuesta a "me quedé sin pines".
 
@@ -46,5 +46,5 @@ documentación es lo único que queda.
 
 [⬅ Índice de proyectos](../index.md) ·
 [Pinout](../../shared/config/pinout.h) ·
-[Roadmap, semana 7](../../roadmap_v2_kit.md) ·
+[Roadmap, semana 5](../../roadmap_v2_kit.md) ·
 [Mapa de transferencia](../../docs/patrones.md)

@@ -8,12 +8,12 @@ Los nueve casos de uso del laboratorio. La numeración sigue la semana del
 | # | Proyecto | Semana | Lenguaje | Técnica central | Estado |
 |---|---|---|---|---|---|
 | **s01** | [Panel de alarma](s01-panel-alarma/index.md) | 1 | 🔵🐍 | Máquina de estados sin bloqueo | ✅ completado |
-| **s02** | [Monitor de umbrales](s02-monitor-umbrales/index.md) | 2 | 🐍 | ADC, divisor de tensión, histéresis | ⬜ |
+| **s02** | [Monitor de umbrales](s02-monitor-umbrales/index.md) | 2 | 🐍 | ADC, divisor de tensión, histéresis | 🟡 |
 | **s03** | [Telemetría a la nube](s03-telemetria-nube/index.md) | 3 | 🔵🐍 | WiFi + MQTT + LWT | ⬜ |
 | **s04** | [Datalogger de frío](s04-datalogger-frio/index.md) | 4 | 🔵 | I2C, NVS, store-and-forward | ⬜ |
-| **s05** | [Control de tanque](s05-control-tanque/index.md) | 5 | 🔵 | Actuadores con fallas seguras | ⬜ |
+| **s05** | [Panel indicador](s05-panel-indicador/index.md) | 5 | 🔵 | Expansión de I/O, multiplexado | ⬜ |
 | **s06** | [Control de acceso](s06-control-acceso/index.md) | 6 | 🔵 | SPI, lógica crítica local | ⬜ |
-| **s07** | [Panel indicador](s07-panel-indicador/index.md) | 7 | 🔵 | Expansión de I/O, multiplexado | ⬜ |
+| **s07** | [Control de tanque](s07-control-tanque/index.md) | 7 | 🔵 | Actuadores con fallas seguras | ⬜ |
 | **s09** | [Nodo a batería](s09-nodo-bateria/index.md) | 9 | 🔵🐍 | Deep sleep, presupuesto energético | ⬜ |
 | **s11** | [Red multi-nodo](s11-red-multinodo/index.md) | 11 | 🔵 | ESP-NOW, topología gateway | ⬜ |
 
@@ -53,11 +53,11 @@ Registro con hora real que sigue funcionando sin internet.
 instrucciones físicas ⬜ ·
 [🔵 código](s04-datalogger-frio/arduino/)
 
-### s05 — Control de tanque
-Bomba de agua automática y persiana motorizada.
-[**índice**](s05-control-tanque/index.md) · [README](s05-control-tanque/README.md) ·
+### s05 — Panel indicador
+Tablero de estado industrial.
+[**índice**](s05-panel-indicador/index.md) · [README](s05-panel-indicador/README.md) ·
 instrucciones físicas ⬜ ·
-[🔵 código](s05-control-tanque/arduino/)
+[🔵 código](s05-panel-indicador/arduino/)
 
 ### s06 — Control de acceso
 Fichaje RFID de oficina o gimnasio.
@@ -65,11 +65,11 @@ Fichaje RFID de oficina o gimnasio.
 instrucciones físicas ⬜ ·
 [🔵 código](s06-control-acceso/arduino/)
 
-### s07 — Panel indicador
-Tablero de estado industrial.
-[**índice**](s07-panel-indicador/index.md) · [README](s07-panel-indicador/README.md) ·
+### s07 — Control de tanque
+Bomba de agua automática y persiana motorizada.
+[**índice**](s07-control-tanque/index.md) · [README](s07-control-tanque/README.md) ·
 instrucciones físicas ⬜ ·
-[🔵 código](s07-panel-indicador/arduino/)
+[🔵 código](s07-control-tanque/arduino/)
 
 ### s09 — Nodo a batería
 Sensor en un lugar sin enchufe cerca.
@@ -97,7 +97,7 @@ Hacer el mismo proyecto dos veces no es redundancia: cada par mide algo distinto
 | **s03** | El stack de red: `PubSubClient` vs `umqtt.simple`, JSON, reconexión |
 | **s09** | **Consumo medido con el multímetro.** MicroPython arranca más lento y eso cuesta meses de autonomía. Un número, no una opinión |
 
-En **s07 MicroPython directamente no puede**: el multiplexado necesita refrescar 8 filas a
+En **s05 MicroPython directamente no puede**: el multiplexado necesita refrescar 8 filas a
 más de 60 Hz y el intérprete no llega.
 
 ## Estructura de cada proyecto

@@ -1,15 +1,15 @@
-# Control de tanque
+# Panel indicador
 
 > **Semana 5** del [roadmap](../../roadmap_v2_kit.md) · Estado: ⬜ sin empezar
 > **Framework:** 🔵 Arduino (C++)
 >
 > 📑 [Índice de este proyecto](index.md)
 
-El timing del servo y del stepper necesita precisión que el intérprete de MicroPython no garantiza.
+**Acá MicroPython directamente no puede.** El multiplexado necesita refrescar 8 filas a más de 60Hz; el intérprete no llega y la matriz parpadea visiblemente.
 
 ## Caso real
 
-Bomba de agua automática y persiana motorizada. Universal en LATAM: ahorra agua y bombas.
+Tablero de estado industrial. Y la respuesta a "me quedé sin pines".
 
 ## Dónde más se usa este patrón
 
@@ -22,11 +22,11 @@ agregá la fila en [`docs/patrones.md`](../../docs/patrones.md).)_
 
 ## Técnica central
 
-Actuadores con fallas seguras
+Expansión de I/O y multiplexado
 
 ## Cómo lo reconstruyo
 
-**Componentes:** Relay, sensor de nivel, servo SG90, stepper + ULN2003, joystick, receptor IR, sensor de inclinación, sensor de sonido
+**Componentes:** 74HC595, matriz 8x8, display 4 dígitos, display 1 dígito, LEDs
 
 | Componente | Pin | Nota |
 |---|---|---|

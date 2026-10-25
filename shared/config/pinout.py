@@ -25,9 +25,9 @@ SPI_RST = 17
 LM35 = 36             # s02 — alimentar a 5V
 LDR = 39              # s02 — divisor con 10K a GND
 POTENCIOMETRO = 34    # s02
-NIVEL_AGUA = 34       # s05 — reemplaza al potenciómetro
-SONIDO_AO = 35        # s05
-JOYSTICK_X = 32       # s05
+NIVEL_AGUA = 34       # s07 — reemplaza al potenciómetro
+SONIDO_AO = 35        # s07
+JOYSTICK_X = 32       # s07
 JOYSTICK_Y = 33
 
 # ---------- Digitales ----------

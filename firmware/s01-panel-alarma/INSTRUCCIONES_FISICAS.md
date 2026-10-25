@@ -355,7 +355,7 @@ Sin resistencia: consumen poco y el pin del ESP32 los banca.
 
 Esa diferencia es PWM: prender y apagar un pin muy rápido. Al buzzer pasivo lo hace vibrar,
 a un LED lo atenúa, a un servo le indica un ángulo. Mismo mecanismo, tres usos — lo vas a
-reencontrar en s05.
+reencontrar en s07.
 
 ---
 

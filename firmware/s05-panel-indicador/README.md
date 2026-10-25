@@ -1,6 +1,6 @@
 # Panel indicador
 
-> **Semana 7** del [roadmap](../../roadmap_v2_kit.md) · Estado: ⬜ sin empezar
+> **Semana 5** del [roadmap](../../roadmap_v2_kit.md) · Estado: ⬜ sin empezar
 > **Framework:** 🔵 Arduino (C++)
 >
 > 📑 [Índice de este proyecto](index.md)
@@ -38,7 +38,7 @@ Pines en [`pinout.h`](../../shared/config/pinout.h) / [`pinout.py`](../../shared
 
 ## Criterio de terminado
 
-_(Copiar del roadmap, "Criterio de terminado — Semana 7".)_
+_(Copiar del roadmap, "Criterio de terminado — Semana 5".)_
 
 - [ ]
 - [ ]

@@ -16,9 +16,9 @@
 5. [Semana 2 — Sensores analógicos](#semana-2--sensores-analógicos)
 6. [Semana 3 — Pipeline a la nube](#semana-3--pipeline-a-la-nube)
 7. [Semana 4 — I2C: pantalla y reloj](#semana-4--i2c-pantalla-y-reloj)
-8. [Semana 5 — Actuadores](#semana-5--actuadores)
+8. [Semana 5 — Expansión de I/O](#semana-5--expansión-de-io)
 9. [Semana 6 — SPI y control de acceso](#semana-6--spi-y-control-de-acceso)
-10. [Semana 7 — Expansión de I/O](#semana-7--expansión-de-io)
+10. [Semana 7 — Actuadores](#semana-7--actuadores)
 11. [Semana 8 — Firmware que no se cuelga](#semana-8--firmware-que-no-se-cuelga)
 12. [Semana 9 — Energía y autonomía](#semana-9--energía-y-autonomía)
 13. [Semana 10 — Producción: OTA y TLS](#semana-10--producción-ota-y-tls)
@@ -105,9 +105,9 @@ Esta asignación evita todos los conflictos y strapping. Usala desde el día 1 y
 | LM35DZ (temperatura) | GPIO 36 | 2 |
 | Fotorresistencia (LDR) | GPIO 39 | 2 |
 | Potenciómetro 10K | GPIO 34 | 2 |
-| Sensor nivel de agua | GPIO 34 | 5 (reemplaza al potenciómetro) |
-| Sensor de sonido (AO) | GPIO 35 | 5 |
-| Joystick VRx / VRy | GPIO 32 / 33 | 5 |
+| Sensor nivel de agua | GPIO 34 | 7 (reemplaza al potenciómetro) |
+| Sensor de sonido (AO) | GPIO 35 | 7 |
+| Joystick VRx / VRy | GPIO 32 / 33 | 7 |
 
 ### Digitales
 
@@ -772,13 +772,238 @@ Dos decisiones que vas a repetir en cada proyecto embebido:
 
 ---
 
-## Semana 5 — Actuadores
+## Semana 5 — Expansión de I/O
+
+> **Caso real**: panel indicador industrial. Y la respuesta a "me quedé sin pines".
+
+**Componentes**: 74HC595, display 8x8, display 4 dígitos, display 1 dígito, LEDs.
+
+### 5.1 — El 74HC595 (día 1-3)
+
+Desde acá cada semana suma periféricos y los pines se terminan rápido: la que viene juntás RFID, un teclado que por sí solo ocupa 8 pines, LCD y relay. El 74HC595 convierte **3 pines en 8 salidas**, y se pueden encadenar: dos chips = 16 salidas con los mismos 3 pines.
+
+```
+74HC595      ESP32
+  DS  (14) → GPIO 23   datos
+  SHCP(11) → GPIO 18   clock (desplaza un bit)
+  STCP(12) → GPIO 5    latch (publica los 8 bits a la vez)
+  OE  (13) → GND       output enable, activo-bajo
+  MR  (10) → 3.3V      master reset, activo-bajo
+  VCC (16) → 3.3V
+  GND (8)  → GND
+```
+
+```cpp
+const int DS = 23, SHCP = 18, STCP = 5;
+
+void escribir595(uint8_t valor) {
+  digitalWrite(STCP, LOW);                    // congelar salidas
+  shiftOut(DS, SHCP, MSBFIRST, valor);        // desplazar 8 bits
+  digitalWrite(STCP, HIGH);                   // publicar de golpe
+}
+
+void setup() {
+  pinMode(DS, OUTPUT); pinMode(SHCP, OUTPUT); pinMode(STCP, OUTPUT);
+}
+
+void loop() {
+  for (int i = 0; i < 8; i++) {
+    escribir595(1 << i);   // un LED que "corre"
+    delay(100);
+  }
+}
+```
+
+El latch (`STCP`) es el detalle elegante: mientras desplazás los bits las salidas quedan congeladas, así que nunca se ven estados intermedios. Es un doble buffer, el mismo concepto que en gráficos.
+
+### 5.2 — Displays y multiplexado (día 4-7)
+
+**Antes de codear, identificá qué te vino**, porque cambia todo:
+
+| Display | Si tiene... | Entonces |
+|---|---|---|
+| 4 dígitos | 4 pines (VCC, GND, CLK, DIO) | Es TM1637 → librería `TM1637Display`, fácil |
+| 4 dígitos | 12 pines | Es crudo → multiplexado a mano o con el 595 |
+| Matriz 8x8 | 5 pines (VCC, GND, DIN, CS, CLK) | Tiene MAX7219 → librería `LedControl`, fácil |
+| Matriz 8x8 | 16 pines | Es cruda → necesita dos 74HC595 |
+
+Si te vino cruda, el multiplexado es el ejercicio:
+
+```cpp
+// Una matriz 8x8 cruda tiene 64 LEDs pero solo podés prender una fila
+// a la vez. El truco es prender fila 1, luego 2, luego 3... tan rápido
+// que el ojo las ve todas juntas. Persistencia de la visión.
+// A >60Hz de refresco completo no se ve parpadeo.
+
+uint8_t buffer[8] = {
+  0b00111100,
+  0b01000010,
+  0b10100101,
+  0b10000001,
+  0b10100101,
+  0b10011001,
+  0b01000010,
+  0b00111100
+};  // una carita
+
+void refrescar() {
+  for (int fila = 0; fila < 8; fila++) {
+    apagarFilas();                 // evita "ghosting" entre filas
+    escribirColumnas(buffer[fila]);
+    activarFila(fila);
+    delayMicroseconds(1500);       // 8 filas × 1.5ms = 12ms ≈ 83Hz
+  }
+}
+```
+
+Ese `apagarFilas()` antes de cambiar es obligatorio: sin él, cada fila se ilumina un instante con los datos de la anterior y la imagen sale sucia. Se llama *ghosting* y es el bug clásico del multiplexado.
+
+**Proyecto de la semana**: panel de estado que muestra en la matriz un ícono según el estado del sistema (OK / alerta / sin conexión), en el display de 4 dígitos la temperatura actual, y usa el 595 para una barra de LEDs de nivel del tanque. Todo alimentado por MQTT desde la semana 3.
+
+### Criterio de terminado — Semana 5
+
+- [ ] Controlás 8 LEDs con 3 pines
+- [ ] Identificaste qué variante de displays te vino
+- [ ] Si es multiplexado: no se ve parpadeo ni ghosting
+- [ ] El panel refleja datos reales que llegan por MQTT
+
+---
+
+## Semana 6 — SPI y control de acceso
+
+> **Caso real**: control de acceso con registro de fichaje. Es un producto que se vende hoy, en cualquier oficina o gimnasio.
+
+**Componentes**: módulo RFID RC522, llavero y tarjeta, teclado 4x4, relay, LCD, RTC.
+
+### 6.1 — SPI vs I2C (día 1)
+
+Tercer protocolo, tercera filosofía:
+
+| | I2C | SPI |
+|---|---|---|
+| Cables | 2 (SDA, SCL) | 4 (SCK, MISO, MOSI) + 1 CS por dispositivo |
+| Velocidad | 100-400 kHz | 10+ MHz |
+| Selección | por dirección en el bus | por línea CS física |
+| Para | sensores lentos, muchos dispositivos | pantallas, SD, RFID, datos rápidos |
+
+I2C ahorra pines, SPI da velocidad. El RC522 usa SPI porque mueve bloques de datos de la tarjeta.
+
+**SPI ya lo hiciste a mano.** El 74HC595 de la semana pasada es SPI hecho por software: un pin de datos (`DS` ≈ MOSI), uno de reloj (`SHCP` ≈ SCK) y un latch (`STCP` ≈ CS). Por eso comparten pines en `pinout.h`. La diferencia es que ahora el periférico SPI del chip mueve los bits por hardware, a 10 MHz y sin ocupar la CPU.
+
+### 6.2 — RFID (día 2-4)
+
+```
+RC522        ESP32
+  VCC   →    3.3V     ⚠️ NUNCA 5V. Lo quemás y no hay vuelta atrás.
+  RST   →    GPIO 17
+  GND   →    GND
+  MISO  →    GPIO 19
+  MOSI  →    GPIO 23
+  SCK   →    GPIO 18
+  SDA   →    GPIO 5    (es el chip select, mal nombrado por el fabricante)
+```
+
+```cpp
+#include <SPI.h>
+#include <MFRC522.h>
+
+MFRC522 rfid(5, 17);  // CS, RST
+
+void setup() {
+  Serial.begin(115200);
+  SPI.begin(18, 19, 23);
+  rfid.PCD_Init();
+  Serial.println("Acercá una tarjeta...");
+}
+
+void loop() {
+  if (!rfid.PICC_IsNewCardPresent()) return;
+  if (!rfid.PICC_ReadCardSerial())   return;
+
+  String uid;
+  for (byte i = 0; i < rfid.uid.size; i++) {
+    if (rfid.uid.uidByte[i] < 0x10) uid += "0";
+    uid += String(rfid.uid.uidByte[i], HEX);
+  }
+  uid.toUpperCase();
+  Serial.printf("UID: %s\n", uid.c_str());
+
+  rfid.PICC_HaltA();
+  rfid.PCD_StopCrypto1();
+}
+```
+
+Anotá los UID de tu llavero y tu tarjeta: son tus dos credenciales de prueba.
+
+### 6.3 — Sistema completo (día 5-7)
+
+Junta RFID + teclado + relay + LCD + RTC + MQTT en un control de acceso funcional:
+
+> **El relay todavía no lo viste:** llega en la semana 7. Hasta entonces, la cerradura es un LED en `PIN_RELAY` con `RELAY_ACTIVO = HIGH`. Para la lógica de acceso da lo mismo; en la semana 7 enchufás el relay real y ajustás `RELAY_ACTIVO` a lo que mediste.
+
+```cpp
+#include <Preferences.h>
+
+Preferences store;
+
+bool autorizado(const String& uid) {
+  store.begin("acceso", true);   // read-only
+  bool ok = store.isKey(uid.c_str());
+  store.end();
+  return ok;
+}
+
+void registrarEvento(const String& uid, bool permitido) {
+  DateTime t = rtc.now();
+  char json[200];
+  snprintf(json, sizeof(json),
+    "{\"uid\":\"%s\",\"permitido\":%s,\"ts\":%lu}",
+    uid.c_str(), permitido ? "true" : "false", (unsigned long)t.unixtime());
+
+  Serial.println(json);
+  if (mqtt.connected()) {
+    mqtt.publish("acceso/eventos", json);
+  } else {
+    // Sin conexión: guardar en NVS y enviar después.
+    // Un control de acceso NUNCA puede perder eventos.
+    guardarEventoPendiente(json);
+  }
+}
+
+void abrirPuerta() {
+  digitalWrite(PIN_RELAY, RELAY_ACTIVO);
+  delay(3000);                    // aceptable acá: es una acción atómica
+  digitalWrite(PIN_RELAY, !RELAY_ACTIVO);
+}
+```
+
+Requisitos del sistema (esto es una especificación, cumplila):
+
+1. Tarjeta autorizada → abre 3 segundos, LCD muestra el nombre, log a MQTT
+2. Tarjeta desconocida → buzzer de error, LED rojo, log igual (los intentos fallidos son el dato más interesante para seguridad)
+3. Teclado con PIN maestro como respaldo si se pierde la tarjeta
+4. **Sin conexión funciona igual**: la whitelist vive en NVS, los eventos se acumulan y se envían al reconectar
+5. Alta de tarjetas nuevas por MQTT (topic `acceso/alta`) sin reprogramar nada
+
+El punto 4 es el que separa esto de un tutorial. Un control de acceso que no abre la puerta porque se cayó internet es un producto inaceptable. **La lógica crítica vive en el dispositivo; la nube es para observabilidad y administración, nunca en el camino crítico.** Esta es probablemente la lección de arquitectura más importante de todo el roadmap, y es la que más le cuesta a la gente que viene de backend.
+
+### Criterio de terminado — Semana 6
+
+- [ ] Lee UID de llavero y tarjeta de forma confiable
+- [ ] Whitelist persiste en NVS entre reinicios
+- [ ] Funciona con el WiFi apagado
+- [ ] Al volver la conexión, los eventos acumulados se envían
+- [ ] Podés dar de alta una tarjeta publicando en MQTT
+
+---
+
+## Semana 7 — Actuadores
 
 > **Caso real**: control de tanque de agua + persiana motorizada. Dos casos que se venden todos los días.
 
 **Componentes**: relay, sensor de nivel de agua, servo SG90, stepper + ULN2003, joystick, receptor IR + control.
 
-### 5.1 — Relay y control de bomba (día 1-2)
+### 7.1 — Relay y control de bomba (día 1-2)
 
 ```
 Módulo relay:
@@ -866,7 +1091,7 @@ Esas tres protecciones son la diferencia entre un proyecto de tutorial y algo qu
 
 > El sensor de nivel del kit es resistivo y se corroe si lo dejás energizado sumergido. En un producto real se lo alimenta desde un GPIO que solo se prende para medir. Buen ejercicio: implementalo.
 
-### 5.2 — Servo con joystick (día 3-4)
+### 7.2 — Servo con joystick (día 3-4)
 
 ```cpp
 #include <ESP32Servo.h>   // ← NO <Servo.h>, esa librería no compila en ESP32
@@ -894,7 +1119,7 @@ void loop() {
 
 **Alimentación**: el servo va a 5V externo con GND común. Si lo colgás del pin 5V del ESP32 alimentado por USB, la caída de tensión al arrancar el motor reinicia la placa. Vas a ver reinicios aleatorios y vas a culpar al código.
 
-### 5.3 — Stepper y control IR (día 5-7)
+### 7.3 — Stepper y control IR (día 5-7)
 
 El stepper 28BYJ-48 con driver ULN2003 es tu primer actuador de **posición precisa**: a diferencia del servo (rango 180°), da vueltas completas y mantiene la posición exacta.
 
@@ -932,234 +1157,13 @@ void loop() {
 
 **Limitación importante**: `motor.step()` es bloqueante. Un cuarto de vuelta a 10 RPM tarda 1.5 segundos durante los cuales el ESP32 no hace absolutamente nada — ni MQTT, ni sensores, ni botones. Es un problema real y no tiene solución elegante dentro de este diseño. Anotalo: **la semana 8 lo resuelve con FreeRTOS**, moviendo el motor a otra tarea en el segundo núcleo. Que te duela ahora es lo que hace que la solución tenga sentido después.
 
-### Criterio de terminado — Semana 5
+### Criterio de terminado — Semana 7
 
 - [ ] Sabés si tu relay es activo-alto o activo-bajo
 - [ ] El control de tanque tiene histéresis + timeout + detección de sensor caído
 - [ ] El servo llega a 0° y 180° sin ruido ni vibración
 - [ ] Tenés mapeados los códigos IR de tu control
 - [ ] Comprobaste que el stepper bloquea el `loop()` y entendés por qué es un problema
-
----
-
-## Semana 6 — SPI y control de acceso
-
-> **Caso real**: control de acceso con registro de fichaje. Es un producto que se vende hoy, en cualquier oficina o gimnasio.
-
-**Componentes**: módulo RFID RC522, llavero y tarjeta, teclado 4x4, relay, LCD, RTC.
-
-### 6.1 — SPI vs I2C (día 1)
-
-Tercer protocolo, tercera filosofía:
-
-| | I2C | SPI |
-|---|---|---|
-| Cables | 2 (SDA, SCL) | 4 (SCK, MISO, MOSI) + 1 CS por dispositivo |
-| Velocidad | 100-400 kHz | 10+ MHz |
-| Selección | por dirección en el bus | por línea CS física |
-| Para | sensores lentos, muchos dispositivos | pantallas, SD, RFID, datos rápidos |
-
-I2C ahorra pines, SPI da velocidad. El RC522 usa SPI porque mueve bloques de datos de la tarjeta.
-
-### 6.2 — RFID (día 2-4)
-
-```
-RC522        ESP32
-  VCC   →    3.3V     ⚠️ NUNCA 5V. Lo quemás y no hay vuelta atrás.
-  RST   →    GPIO 17
-  GND   →    GND
-  MISO  →    GPIO 19
-  MOSI  →    GPIO 23
-  SCK   →    GPIO 18
-  SDA   →    GPIO 5    (es el chip select, mal nombrado por el fabricante)
-```
-
-```cpp
-#include <SPI.h>
-#include <MFRC522.h>
-
-MFRC522 rfid(5, 17);  // CS, RST
-
-void setup() {
-  Serial.begin(115200);
-  SPI.begin(18, 19, 23);
-  rfid.PCD_Init();
-  Serial.println("Acercá una tarjeta...");
-}
-
-void loop() {
-  if (!rfid.PICC_IsNewCardPresent()) return;
-  if (!rfid.PICC_ReadCardSerial())   return;
-
-  String uid;
-  for (byte i = 0; i < rfid.uid.size; i++) {
-    if (rfid.uid.uidByte[i] < 0x10) uid += "0";
-    uid += String(rfid.uid.uidByte[i], HEX);
-  }
-  uid.toUpperCase();
-  Serial.printf("UID: %s\n", uid.c_str());
-
-  rfid.PICC_HaltA();
-  rfid.PCD_StopCrypto1();
-}
-```
-
-Anotá los UID de tu llavero y tu tarjeta: son tus dos credenciales de prueba.
-
-### 6.3 — Sistema completo (día 5-7)
-
-Junta RFID + teclado + relay + LCD + RTC + MQTT en un control de acceso funcional:
-
-```cpp
-#include <Preferences.h>
-
-Preferences store;
-
-bool autorizado(const String& uid) {
-  store.begin("acceso", true);   // read-only
-  bool ok = store.isKey(uid.c_str());
-  store.end();
-  return ok;
-}
-
-void registrarEvento(const String& uid, bool permitido) {
-  DateTime t = rtc.now();
-  char json[200];
-  snprintf(json, sizeof(json),
-    "{\"uid\":\"%s\",\"permitido\":%s,\"ts\":%lu}",
-    uid.c_str(), permitido ? "true" : "false", (unsigned long)t.unixtime());
-
-  Serial.println(json);
-  if (mqtt.connected()) {
-    mqtt.publish("acceso/eventos", json);
-  } else {
-    // Sin conexión: guardar en NVS y enviar después.
-    // Un control de acceso NUNCA puede perder eventos.
-    guardarEventoPendiente(json);
-  }
-}
-
-void abrirPuerta() {
-  digitalWrite(PIN_RELAY, RELAY_ACTIVO);
-  delay(3000);                    // aceptable acá: es una acción atómica
-  digitalWrite(PIN_RELAY, !RELAY_ACTIVO);
-}
-```
-
-Requisitos del sistema (esto es una especificación, cumplila):
-
-1. Tarjeta autorizada → abre 3 segundos, LCD muestra el nombre, log a MQTT
-2. Tarjeta desconocida → buzzer de error, LED rojo, log igual (los intentos fallidos son el dato más interesante para seguridad)
-3. Teclado con PIN maestro como respaldo si se pierde la tarjeta
-4. **Sin conexión funciona igual**: la whitelist vive en NVS, los eventos se acumulan y se envían al reconectar
-5. Alta de tarjetas nuevas por MQTT (topic `acceso/alta`) sin reprogramar nada
-
-El punto 4 es el que separa esto de un tutorial. Un control de acceso que no abre la puerta porque se cayó internet es un producto inaceptable. **La lógica crítica vive en el dispositivo; la nube es para observabilidad y administración, nunca en el camino crítico.** Esta es probablemente la lección de arquitectura más importante de todo el roadmap, y es la que más le cuesta a la gente que viene de backend.
-
-### Criterio de terminado — Semana 6
-
-- [ ] Lee UID de llavero y tarjeta de forma confiable
-- [ ] Whitelist persiste en NVS entre reinicios
-- [ ] Funciona con el WiFi apagado
-- [ ] Al volver la conexión, los eventos acumulados se envían
-- [ ] Podés dar de alta una tarjeta publicando en MQTT
-
----
-
-## Semana 7 — Expansión de I/O
-
-> **Caso real**: panel indicador industrial. Y la respuesta a "me quedé sin pines".
-
-**Componentes**: 74HC595, display 8x8, display 4 dígitos, display 1 dígito, LEDs.
-
-### 7.1 — El 74HC595 (día 1-3)
-
-Con todo lo de la semana 6 conectado ya casi no te quedan pines. El 74HC595 convierte **3 pines en 8 salidas**, y se pueden encadenar: dos chips = 16 salidas con los mismos 3 pines.
-
-```
-74HC595      ESP32
-  DS  (14) → GPIO 23   datos
-  SHCP(11) → GPIO 18   clock (desplaza un bit)
-  STCP(12) → GPIO 5    latch (publica los 8 bits a la vez)
-  OE  (13) → GND       output enable, activo-bajo
-  MR  (10) → 3.3V      master reset, activo-bajo
-  VCC (16) → 3.3V
-  GND (8)  → GND
-```
-
-```cpp
-const int DS = 23, SHCP = 18, STCP = 5;
-
-void escribir595(uint8_t valor) {
-  digitalWrite(STCP, LOW);                    // congelar salidas
-  shiftOut(DS, SHCP, MSBFIRST, valor);        // desplazar 8 bits
-  digitalWrite(STCP, HIGH);                   // publicar de golpe
-}
-
-void setup() {
-  pinMode(DS, OUTPUT); pinMode(SHCP, OUTPUT); pinMode(STCP, OUTPUT);
-}
-
-void loop() {
-  for (int i = 0; i < 8; i++) {
-    escribir595(1 << i);   // un LED que "corre"
-    delay(100);
-  }
-}
-```
-
-El latch (`STCP`) es el detalle elegante: mientras desplazás los bits las salidas quedan congeladas, así que nunca se ven estados intermedios. Es un doble buffer, el mismo concepto que en gráficos.
-
-### 7.2 — Displays y multiplexado (día 4-7)
-
-**Antes de codear, identificá qué te vino**, porque cambia todo:
-
-| Display | Si tiene... | Entonces |
-|---|---|---|
-| 4 dígitos | 4 pines (VCC, GND, CLK, DIO) | Es TM1637 → librería `TM1637Display`, fácil |
-| 4 dígitos | 12 pines | Es crudo → multiplexado a mano o con el 595 |
-| Matriz 8x8 | 5 pines (VCC, GND, DIN, CS, CLK) | Tiene MAX7219 → librería `LedControl`, fácil |
-| Matriz 8x8 | 16 pines | Es cruda → necesita dos 74HC595 |
-
-Si te vino cruda, el multiplexado es el ejercicio:
-
-```cpp
-// Una matriz 8x8 cruda tiene 64 LEDs pero solo podés prender una fila
-// a la vez. El truco es prender fila 1, luego 2, luego 3... tan rápido
-// que el ojo las ve todas juntas. Persistencia de la visión.
-// A >60Hz de refresco completo no se ve parpadeo.
-
-uint8_t buffer[8] = {
-  0b00111100,
-  0b01000010,
-  0b10100101,
-  0b10000001,
-  0b10100101,
-  0b10011001,
-  0b01000010,
-  0b00111100
-};  // una carita
-
-void refrescar() {
-  for (int fila = 0; fila < 8; fila++) {
-    apagarFilas();                 // evita "ghosting" entre filas
-    escribirColumnas(buffer[fila]);
-    activarFila(fila);
-    delayMicroseconds(1500);       // 8 filas × 1.5ms = 12ms ≈ 83Hz
-  }
-}
-```
-
-Ese `apagarFilas()` antes de cambiar es obligatorio: sin él, cada fila se ilumina un instante con los datos de la anterior y la imagen sale sucia. Se llama *ghosting* y es el bug clásico del multiplexado.
-
-**Proyecto de la semana**: panel de estado que muestra en la matriz un ícono según el estado del sistema (OK / alerta / sin conexión), en el display de 4 dígitos la temperatura actual, y usa el 595 para una barra de LEDs de nivel del tanque. Todo alimentado por MQTT desde la semana 3.
-
-### Criterio de terminado — Semana 7
-
-- [ ] Controlás 8 LEDs con 3 pines
-- [ ] Identificaste qué variante de displays te vino
-- [ ] Si es multiplexado: no se ve parpadeo ni ghosting
-- [ ] El panel refleja datos reales que llegan por MQTT
 
 ---
 
@@ -1175,7 +1179,7 @@ Esta es la semana más importante del roadmap y la que menos aparece en los tuto
 
 El ESP32 tiene dos núcleos y un sistema operativo de tiempo real ya corriendo. Tu `loop()` es solo una tarea de baja prioridad en el núcleo 1.
 
-Esto resuelve el stepper bloqueante de la semana 5:
+Esto resuelve el stepper bloqueante de la semana 7:
 
 ```cpp
 QueueHandle_t colaMotor;
@@ -1723,7 +1727,7 @@ Lo que el kit no trae y sí vas a necesitar:
 | Ítem | Precio | Cuándo | Por qué |
 |---|---|---|---|
 | **Multímetro** | ~$5 | Semana 1 | Sin esto debuggeás a ciegas. El primero de la lista. |
-| **Fuente 5V 2A** | ~$8 | Semana 5 | Servo y stepper no andan con USB |
+| **Fuente 5V 2A** | ~$8 | Semana 7 | Servo y stepper no andan con USB |
 | **Segundo ESP32** | ~$10 | Semana 11 | ESP-NOW necesita dos |
 | Backpack I2C para LCD | ~$2 | Semana 4 | Solo si tu LCD tiene 16 pines |
 | Capacitores 470µF | ~$1 | Semana 12 | Estabilidad de alimentación |
@@ -1846,7 +1850,7 @@ Si dudás, medilas con el tester en modo `Ω` — es más rápido y confiable qu
 |---|---|---|---|
 | **Buzzer activo** | Cilindro negro, tapa **sellada y lisa** (a veces con una etiqueta) | 3.3-5V | 1 |
 | **Buzzer pasivo** | Cilindro negro, se ve **el PCB verde por abajo** | 3.3-5V | 1 |
-| **Módulo sensor de sonido** | Placa con un **micrófono redondo metálico**, chip LM393 y un potenciómetro azul de ajuste | 3.3-5V | 5 |
+| **Módulo sensor de sonido** | Placa con un **micrófono redondo metálico**, chip LM393 y un potenciómetro azul de ajuste | 3.3-5V | 7 |
 
 **Cómo distinguir los buzzers con seguridad** (se parecen mucho):
 
@@ -1895,7 +1899,7 @@ Si tu botón parece estar siempre presionado, es esto. Confirmalo con el tester 
 | **LM35DZ** | Cápsula negra semicircular de 3 patas (TO-92). **Dice "LM35DZ"** impreso | **5V** (mínimo 4V) | 2 |
 | **DHT11** | Cajita **celeste** con rejilla, 3 o 4 pines | 3.3-5V | 4 |
 | **Sensor de llama** | Módulo con un LED-like **oscuro/azulado inclinado**, chip LM393 y potenciómetro | 3.3-5V | 1 |
-| **Sensor nivel de agua** | Placa alargada con **tiras de cobre paralelas** | 3.3-5V | 5 |
+| **Sensor nivel de agua** | Placa alargada con **tiras de cobre paralelas** | 3.3-5V | 7 |
 
 **El LM35 parece un transistor.** Es una cápsula negra de 3 patas idéntica a mil componentes. La única forma de estar seguro es leer lo que dice impreso: `LM35DZ`. Con la parte plana hacia vos y las patas hacia abajo:
 
@@ -1950,7 +1954,7 @@ int leerNivel() {
 | LCD 1602 | 4 (`GND`,`VCC`,`SDA`,`SCL`) | Tiene backpack I2C | `LiquidCrystal_I2C` ✅ |
 | LCD 1602 | 16 | Paralelo crudo | `LiquidCrystal`, gasta 6 GPIO. Comprá backpack (~$2) |
 | 4 dígitos | 4 (`CLK`,`DIO`,`VCC`,`GND`) | Chip TM1637 | `TM1637Display` ✅ |
-| 4 dígitos | 12 | Crudo | Multiplexado a mano (semana 7) |
+| 4 dígitos | 12 | Crudo | Multiplexado a mano (semana 5) |
 | Matriz | 5 (`DIN`,`CS`,`CLK`,`VCC`,`GND`) | Chip MAX7219 | `LedControl` ✅ |
 | Matriz | 16 | Cruda | Necesita **dos** 74HC595 (tenés uno) |
 
@@ -1962,10 +1966,10 @@ int leerNivel() {
 
 | Ítem | Cómo lo reconocés | Alimentación | Semana |
 |---|---|---|---|
-| **Servo SG90** | Cajita azul con brazos plásticos blancos | **5V externo** | 5 |
-| **Motor paso a paso** | Cilindro **azul** con conector blanco de 5 pines (28BYJ-48) | **5V externo** | 5 |
-| **Driver ULN2003** | PCB con 4 LEDs, conector blanco y chip DIP-16 | **5V externo** | 5 |
-| **Módulo relay 1 canal** | Cubo **azul** grande + borneras a tornillo | VCC a **5V** | 5 |
+| **Servo SG90** | Cajita azul con brazos plásticos blancos | **5V externo** | 7 |
+| **Motor paso a paso** | Cilindro **azul** con conector blanco de 5 pines (28BYJ-48) | **5V externo** | 7 |
+| **Driver ULN2003** | PCB con 4 LEDs, conector blanco y chip DIP-16 | **5V externo** | 7 |
+| **Módulo relay 1 canal** | Cubo **azul** grande + borneras a tornillo | VCC a **5V** | 7 |
 
 **Servo SG90** — código de colores universal:
 
@@ -1999,7 +2003,7 @@ Lado de potencia (borneras):      NO (normal abierto) · COM (común) · NC (nor
 
 | Ítem | Cómo lo reconocés | Voltaje | Semana |
 |---|---|---|---|
-| **74HC595N** | Chip negro DIP-16, **dice "74HC595"** | 3.3V | 7 |
+| **74HC595N** | Chip negro DIP-16, **dice "74HC595"** | 3.3V | 5 |
 | **Módulo RFID RC522** | PCB **azul** grande con antena espiralada plana, 8 pines | **3.3V ⚠️** | 6 |
 | **Llavero + tarjeta RFID** | Llavero azul y tarjeta blanca tipo credencial | — | 6 |
 | **Módulo RTC** | PCB con **portapilas circular** (CR2032) | 3.3-5V | 4 |
@@ -2082,11 +2086,11 @@ void setColor(uint8_t r, uint8_t g, uint8_t b) {
 }
 ```
 
-**Sensor de inclinación → Semana 5.** Detector de apertura de tapa o de vuelco, integrado al control de tanque como cuarta protección: si el gabinete se movió, bloqueo de seguridad y alerta por MQTT. Se lee como un botón (con `INPUT_PULLUP` y debounce), pero el caso de uso es de seguridad, no de interfaz.
+**Sensor de inclinación → Semana 7.** Detector de apertura de tapa o de vuelco, integrado al control de tanque como cuarta protección: si el gabinete se movió, bloqueo de seguridad y alerta por MQTT. Se lee como un botón (con `INPUT_PULLUP` y debounce), pero el caso de uso es de seguridad, no de interfaz.
 
-**Sensor de sonido → Semana 5.** Detección de eventos por umbral: que arrancó la bomba, que hay un golpe, que una máquina cambió de régimen. Combinalo con el control de tanque: si el relay dice "bomba encendida" pero el sensor de sonido no detecta nada, **la bomba no está funcionando**. Eso es verificación de actuador — comprobar que lo que ordenaste efectivamente pasó — y es un patrón que casi nadie implementa y que distingue un sistema serio.
+**Sensor de sonido → Semana 7.** Detección de eventos por umbral: que arrancó la bomba, que hay un golpe, que una máquina cambió de régimen. Combinalo con el control de tanque: si el relay dice "bomba encendida" pero el sensor de sonido no detecta nada, **la bomba no está funcionando**. Eso es verificación de actuador — comprobar que lo que ordenaste efectivamente pasó — y es un patrón que casi nadie implementa y que distingue un sistema serio.
 
-**Display de 1 dígito → Semana 7.** Es el paso previo a la matriz 8x8. Con 7 segmentos y un solo dígito aprendés el mapeo de bits a segmentos sin la complicación del multiplexado; después, con el 74HC595, lo hacés con 3 pines en lugar de 8. Cuando pases a la matriz, ya vas a tener la mitad del problema resuelto.
+**Display de 1 dígito → Semana 5.** Es el paso previo a la matriz 8x8. Con 7 segmentos y un solo dígito aprendés el mapeo de bits a segmentos sin la complicación del multiplexado; después, con el 74HC595, lo hacés con 3 pines en lugar de 8. Cuando pases a la matriz, ya vas a tener la mitad del problema resuelto.
 
 ---
 
@@ -2115,3 +2119,4 @@ Pegá esto al lado de la protoboard. La mayoría de los componentes muertos se m
 |---|---|---|
 | 2.0 | Sep 2026 | Reescrito para el kit HEMMEL TEK-002. Software adelantado a semana 3. Casos de uso reales por semana. Código corregido (INPUT_PULLUP, ESP32Servo, ADC1, DHT11, analogReadMilliVolts). Agregadas semanas 8-12 que faltaban en v1. Expectativas ajustadas. |
 | 2.1 | Sep 2026 | Anexo A: catálogo de los 39 ítems con identificación física, voltajes y trampas. Integrados los 4 componentes huérfanos (RGB, inclinación, sonido, display 1 dígito). |
+| 2.2 | Oct 2026 | Semanas 5 y 7 intercambiadas: Expansión de I/O pasa a la 5 y Actuadores a la 7. El 74HC595 hecho a mano prepara SPI (semana 6), y la semana de mayor riesgo eléctrico llega con más práctica y el multímetro ya comprado. |
